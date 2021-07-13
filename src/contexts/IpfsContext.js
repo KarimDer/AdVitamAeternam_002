@@ -6,8 +6,8 @@ export const IpfsContext = createContext();
 export const IpfsContextProvider = ({ children }) => {
   const [ipfs, setIpfs] = useState();
 
-  const projectId = '1uqT2bhaKLRP5j7GdTv3hHXgLWO';
-  const projectSecret = '56086288e7e27836181db4b35bc6cd3f';
+  const projectId = 'XXXXXX';
+  const projectSecret = 'XXXXXX';
   const auth =
     'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
 
