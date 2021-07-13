@@ -1,4 +1,5 @@
-import { React, useState } from 'react';
+import { React, useState, useContext } from 'react';
+import { IpfsContext } from '../../contexts/IpfsContext';
 import {
   chakra,
   Box,
@@ -31,8 +32,13 @@ import { Card, Upload, Col } from 'antd';
 export default function MintForm() {
   const [file, setFile] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
+  const { addMetadata, addFile } = useContext(IpfsContext);
 
-  console.log(file);
+  const onClickAddFile = async () => {
+    let cid = await addFile(file);
+    console.log(cid)
+  }
+
   const beforeUpload = (file, fileList) => {
     console.log(file, fileList);
     setFile(file);
@@ -239,10 +245,10 @@ export default function MintForm() {
                 textAlign="center"
               >
                 <Button
-                  type="submit"
                   colorScheme="teal"
                   _focus={{ shadow: '' }}
                   fontWeight="md"
+                  onClick={onClickAddFile}
                 >
                   Mint
                 </Button>

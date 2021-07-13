@@ -4,11 +4,14 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ChakraProvider } from "@chakra-ui/react"
 import {customTheme} from './theme/theme'
+import {IpfsContextProvider} from './contexts/IpfsContext';
 
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider theme={customTheme}>
+      <IpfsContextProvider>
       <App />
+      </IpfsContextProvider>
     </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')

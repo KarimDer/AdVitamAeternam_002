@@ -1,72 +1,86 @@
-import { createContext, useState, useEffect } from "react";
-import {create} from "ipfs-http-client";
-
+import { createContext, useState, useEffect } from 'react';
+import { create } from 'ipfs-http-client';
 
 export const IpfsContext = createContext();
 
-
 export const IpfsContextProvider = ({ children }) => {
-    const [ipfs, setIpfs] = useState();
-  
-    useEffect(() => {
-      async function fetchData() {
-        let ipfs = create(new URL('https://ipfs.infura.io:5001'));
-        setIpfs(ipfs);
-      }
-      fetchData();
-    }, []);
-  
-    async function addMetadata(metadata) {
-      const cid = await ipfs.add(
-        {
-          path: `metadata.json`,
-          content: metadata,
-          mtime: new Date(),
-        },
-        { wrapWithDirectory: true, cidVersion: 1, hashAlg: "sha2-256" }
-      );
-      return cid.cid.string;
+  const [ipfs, setIpfs] = useState();
+
+  const projectId = '1uqT2bhaKLRP5j7GdTv3hHXgLWO';
+  const projectSecret = '56086288e7e27836181db4b35bc6cd3f';
+  const auth =
+    'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
+
+  useEffect(() => {
+    async function fetchData() {
+      const client =  create({
+        host: "ipfs.infura.io",
+        port: 5001,
+        protocol: 'https',
+      });
+      setIpfs(client);
+      console.log('hello');
     }
-  
-    async function addFile(file) {
-      const cid = await ipfs.add(
-        {
-          path: `${file.name}`,
-          content: file,
-          mtime: new Date(),
-        },
-        { wrapWithDirectory: true, cidVersion: 1, hashAlg: "sha2-256" }
-      );
-      return cid.cid.string;
-    }
-  
-    async function getURLofImageFromCid(cid) {
-      try {
-        for await (const file of ipfs.ls(cid)) {
-          let filePath = file.path.replace (/^/,'https://dweb.link/ipfs/');
-          return filePath
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    }
-  
-    async function getMetadataFromCid(cid) {
-      try {
-        const data = await ipfs.cat(
-          cid + '/metadata.json'
-        );
-      for await (const file of data) {
-          return new TextDecoder().decode(file);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  
-    return (
-      <IpfsContext.Provider value={{ ipfs, addMetadata, getMetadataFromCid, addFile, getURLofImageFromCid }}>
-        {children}
-      </IpfsContext.Provider>
+    fetchData();
+  }, []);
+
+  async function addMetadata(metadata) {
+    const cid = await ipfs.pin.add(
+      {
+        path: `metadata.json`,
+        content: metadata,
+        mtime: new Date(),
+      },
+      { wrapWithDirectory: true, cidVersion: 1, hashAlg: 'sha2-256' }
     );
-  };
+    return cid.cid.string;
+  }
+
+  async function addFile(file) {
+    const cid = await ipfs.add(
+      {
+        path: `${file.name}`,
+        content: file,
+        mtime: new Date(),
+      },
+      { wrapWithDirectory: true, cidVersion: 1, hashAlg: 'sha2-256' }
+    );
+    return cid.cid.string;
+  }
+
+  async function getURLofImageFromCid(cid) {
+    try {
+      for await (const file of ipfs.ls(cid)) {
+        let filePath = file.path.replace(/^/, 'https://dweb.link/ipfs/');
+        return filePath;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function getMetadataFromCid(cid) {
+    try {
+      const data = await ipfs.cat(cid + '/metadata.json');
+      for await (const file of data) {
+        return new TextDecoder().decode(file);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  return (
+    <IpfsContext.Provider
+      value={{
+        ipfs,
+        addMetadata,
+        getMetadataFromCid,
+        addFile,
+        getURLofImageFromCid,
+      }}
+    >
+      {children}
+    </IpfsContext.Provider>
+  );
+};
